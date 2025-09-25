@@ -1,0 +1,26 @@
+venues: ["hyperliquid"]
+rate_limits:
+  hyperliquid:
+    rest:
+      base_per_sec: 8
+      burst: 16
+    ws:
+      pings_every_ms: 15000
+      max_subs_per_conn: 64
+symbols:
+  hyperliquid:
+    kind: "perp"
+    set_size: ${SYMBOL_SET_SIZE}
+shards:
+  hyperliquid:
+    ws_conns: 4
+    strategy: "round_robin" # shard symbols across conns
+storage:
+  retention_days: ${RETENTION_DAYS}
+  hdd_only: true
+kafka:
+  enabled: ${KAFKA_ENABLED}
+  brokers: ${KAFKA_BROKERS}
+security:
+  secrets_source: "env" # or "vault"
+

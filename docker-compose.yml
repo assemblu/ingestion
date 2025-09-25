@@ -1,0 +1,80 @@
+version: "3.8"
+services:
+  ch:
+    image: clickhouse/clickhouse-server:24.8
+    container_name: ch
+    ulimits: { nofile: { soft: 262144, hard: 262144 } }
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    volumes:
+      - ./db/clickhouse:/db
+      - ch_data:/var/lib/clickhouse
+      - ./ops/prometheus:/etc/prometheus
+    ports: ["8123:8123","9000:9000"]
+    depends_on: [keeper]
+  keeper:
+    image: clickhouse/clickhouse-keeper:24.8
+    container_name: keeper
+    command: ["--config","/etc/keeper/keeper.xml"]
+    volumes:
+      - type: tmpfs
+        target: /var/lib/clickhouse-keeper
+      - ./db/keeper/keeper.xml:/etc/keeper/keeper.xml
+    ports: ["9181:9181"]
+  redpanda:
+    image: docker.redpanda.com/redpanda/redpanda:v24.1.7
+    container_name: redpanda
+    command:
+      - redpanda start --smp 1 --memory 1G --reserve-memory 0M --overprovisioned
+      - --kafka-addr 0.0.0.0:9092 --advertise-kafka-addr redpanda:9092
+    ports: ["9092:9092"]
+    volumes: [rp_data:/var/lib/redpanda/data]
+  simfeed:
+    image: python:3.11-slim
+    container_name: simfeed
+    environment:
+      - KAFKA_BROKERS=redpanda:9092
+      - SYMBOL_SET_SIZE=${SYMBOL_SET_SIZE}
+    depends_on: [redpanda]
+    command: ["python","/app/simfeed.py","--symbols","${SYMBOL_SET_SIZE}","--rate","200"]
+    volumes:
+      - ./tools/simfeed:/app
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    container_name: prometheus
+    volumes:
+      - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports: ["9090:9090"]
+    depends_on: [ch, redpanda]
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: grafana
+    ports: ["3000:3000"]
+    volumes:
+      - ./ops/grafana:/var/lib/grafana/dashboards
+      - ./ops/grafana/provisioning:/etc/grafana/provisioning
+    depends_on: [prometheus]
+  loki:
+    image: grafana/loki:2.9.8
+    container_name: loki
+    command: ["-config.file=/etc/loki/loki.yml"]
+    volumes:
+      - ./ops/loki/loki.yml:/etc/loki/loki.yml
+      - loki_data:/loki
+    ports: ["3100:3100"]
+  promtail:
+    image: grafana/promtail:2.9.8
+    container_name: promtail
+    command: ["-config.file=/etc/promtail/config.yml"]
+    volumes:
+      - ./ops/loki/promtail.yml:/etc/promtail/config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log:/var/log:ro
+
+volumes:
+  ch_data: {}
+  rp_data: {}
+  loki_data: {}
+

@@ -1,0 +1,3 @@
+CREATE VOLUME IF NOT EXISTS hdd TYPE local PATH '/var/lib/clickhouse/data';
+CREATE STORAGE POLICY IF NOT EXISTS hdd_only POLICY VOLUME hdd;
+

@@ -1,0 +1,19 @@
+groups:
+- name: ingest
+  rules:
+  - alert: KafkaLagHigh
+    expr: kafka_consumergroup_lag{topic=~"trades|quotes|book_.*"} > 100000
+    for: 5m
+    labels: { severity: page }
+    annotations: { summary: "Kafka lag high", desc: "Lag > 100k for 5m" }
+  - alert: ReplicationBacklog
+    expr: clickhouse_replication_queue_size > 500
+    for: 10m
+    labels: { severity: warn }
+    annotations: { summary: "CH replication queue high" }
+  - alert: SeqGapsSpike
+    expr: rate(ingest_seq_gaps_total[5m]) > 50
+    for: 2m
+    labels: { severity: warn }
+    annotations: { summary: "Seq gaps spiking" }
+

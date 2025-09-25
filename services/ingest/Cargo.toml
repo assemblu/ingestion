@@ -1,0 +1,13 @@
+[package]
+name = "ingest"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow="1"
+clickhouse = "0.12"
+tracing="0.1"
+tokio = { version="1", features=["full"] }
+serde="1"
+serde_json="1"
+

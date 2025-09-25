@@ -1,0 +1,16 @@
+<clickhouse>
+  <logger>
+    <level>information</level>
+  </logger>
+  <keeper_server>
+    <tcp_port>9181</tcp_port>
+    <server_id>1</server_id>
+    <coordination_settings>
+      <operation_timeout_ms>10000</operation_timeout_ms>
+    </coordination_settings>
+    <four_letter_word_white_list>*</four_letter_word_white_list>
+    <snapshot_storage>disk</snapshot_storage>
+    <log_storage>disk</log_storage>
+  </keeper_server>
+</clickhouse>
+

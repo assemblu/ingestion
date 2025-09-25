@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 10s
+scrape_configs:
+- job_name: clickhouse
+  static_configs:
+  - targets: ["ch:9363"]   # use exporter if added; else disable
+- job_name: redpanda
+  static_configs:
+  - targets: ["redpanda:9644"]  # redpanda metrics
+- job_name: services
+  static_configs:
+  - targets: ["connector:9100","bookbuilder:9101","ingest:9102"]
+
