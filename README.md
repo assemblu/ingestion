@@ -1,5 +1,8 @@
 # Ingestion Project
 
+> [!WARNING]
+> Project gets periodic commits. I am mainly maintaining a local home server cluster where I also have my git setup there.
+
 This is a Dockerized C++ "Hello, World!" application that demonstrates how to containerize a C++ application using Docker and CMake.
 
 ## Prerequisites
@@ -18,7 +21,7 @@ docker-compose up --build
 This will:
 1. Build the Docker image with the C++ application
 2. Start the container
-3. Output "Hello, World! This is a Dockerized C++ application."
+3. Output "Hello, World!"
 
 ## Alternative: Manual Docker Commands
 
